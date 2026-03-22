@@ -1,0 +1,28 @@
+# Ввод количества имён
+N = int(input("Введите количество имён N: "))
+
+# Создание списка для исходных имён
+names = []
+
+# Ввод N имён и добавление их в список
+print("Введите имена:")
+for _ in range(N):
+    name = input()
+    names.append(name)
+
+# Создание нового списка для имён разной длины
+uni = []
+# Множество для хранения уже встреченных длин имён
+seen_lengths = set()
+
+# Проход по исходному списку
+for name in names:
+    length = len(name)
+    # Добавляем имя в uni, только если такой длины ещё нет в seen_lengths
+    if length not in seen_lengths:
+        uni.append(name)
+        seen_lengths.add(length)
+
+# Вывод обоих списков
+print("\nИсходный список names:", names)
+print("Список uni (имена разной длины):", uni)
