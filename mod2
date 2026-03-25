@@ -1,0 +1,103 @@
+задание 1
+import re
+from datetime import datetime
+
+def find_datetime_in_text(text):
+    """
+    Находит в тексте все вхождения даты и времени в формате ГГГГ-ММ-ДД ЧЧ:ММ:СС
+    (только годы XXI века). Выполняет дополнительную проверку корректности дат.
+    
+    Args:
+        text (str): Текст для поиска
+        
+    Returns:
+        list: Список корректных строк с датой и временем
+    """
+    # Регулярное выражение для базового поиска
+    pattern = r'20[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01]) (?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]'
+    potential_matches = re.findall(pattern, text)
+    
+    valid_dates = []
+    
+    for match in potential_matches:
+        # Восстанавливаем полную строку даты и времени
+        full_match = match.group(0)
+        try:
+            # Проверяем корректность даты с помощью datetime
+            datetime.strptime(full_match, '%Y-%m-%d %H:%M:%S')
+            valid_dates.append(full_match)
+        except ValueError:
+            # Если дата некорректна (например, 2023-02-30), пропускаем
+            continue
+    
+    return valid_dates
+
+# Пример использования
+if __name__ == '__main__':
+    # Тестовый текст
+    test_text = """
+    Сегодня 2023-05-15 14:30:25 произошло важное событие.
+    Завтра будет 2023-12-31 23:59:59 — канун Нового года.
+    В прошлом веке было 1999-12-31 23:59:59 — это не должно найтись.
+    Некорректная дата: 2023-02-30 10:10:10 (в феврале нет 30 дней).
+    Ещё одна корректная: 2001-01-01 00:00:01.
+    И ещё: 2099-12-31 23:59:59.
+    А это не дата: 2023/05/15 14-30-25.
+    """
+    
+    results = find_datetime_in_text(test_text)
+    
+    print("Найденные корректные даты и время:")
+    for date_time in results:
+        print(f"  - {date_time}")
+
+задание 2 
+
+import re
+
+def extract_emails(text):
+    """
+    Извлекает email‑адреса из текста согласно заданным правилам.
+
+    Email может содержать:
+    * буквы латинского алфавита (A–Z, a–z);
+    * цифры (0–9);
+    * спецсимволы: +, _, -, #.
+
+    Args:
+        text (str): Текст для поиска email‑адресов.
+
+    Returns:
+        list: Список найденных email‑адресов.
+    """
+    # Регулярное выражение для поиска email
+    # Локальная часть: буквы, цифры и разрешённые спецсимволы (+_ - #)
+    # Символ @
+    # Доменная часть: буквы, цифры, дефисы, точки; минимум одна точка перед доменом верхнего уровня
+    pattern = r'[a-zA-Z0-9+_#-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}'
+    
+    emails = re.findall(pattern, text)
+    return emails
+
+# Пример использования
+if __name__ == '__main__':
+    # Тестовый текст с разными email‑адресами
+    test_text = """
+    Свяжитесь с нами:
+    user@example.com
+    test.email+tag@domain.co.uk
+    another_user123@sub.domain.org
+    special#char@site.net
+    invalid-email@
+    @missinglocalpart.com
+    localpart@.missingdomain
+    valid.email@domain.info
+    user+label@company.io
+    simple@site.com
+    """
+
+    found_emails = extract_emails(test_text)
+
+    print("Найденные email‑адреса:")
+    for email in found_emails:
+        print(email)
