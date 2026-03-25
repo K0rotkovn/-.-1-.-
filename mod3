@@ -1,0 +1,146 @@
+import requests
+import json
+
+def get_weather(city_name, api_key):
+    """
+    Получает данные о погоде для указанного города.
+
+    Args:
+        city_name (str): Название города.
+        api_key (str): API‑ключ OpenWeather.
+
+    Returns:
+        dict or None: Данные о погоде или None при ошибке.
+    """
+    # URL для запроса текущей погоды
+    url = "http://api.openweathermap.org/data/2.5/weather"
+
+    # Параметры запроса
+    params = {
+        'q': city_name,
+        'appid': api_key,
+        'units': 'metric',  # Температура в градусах Цельсия
+        'lang': 'ru'     # Язык ответа — русский
+    }
+
+    try:
+        # Отправляем GET‑запрос
+        response = requests.get(url, params=params)
+        response.raise_for_status()  # Вызывает исключение для HTTP‑ошибок
+
+        # Парсим JSON‑ответ
+        data = response.json()
+        return data
+
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка при запросе к API: {e}")
+        return None
+    except json.JSONDecodeError as e:
+        print(f"Ошибка декодирования JSON: {e}")
+        return None
+
+def display_weather(data):
+    """
+    Отображает данные о погоде в читаемом формате.
+
+    Args:
+        data (dict): Данные о погоде из API.
+    """
+    if not data:
+        print("Не удалось получить данные о погоде.")
+        return
+
+    try:
+        # Извлекаем нужные данные
+        city = data['name']
+        country = data['sys']['country']
+        temp = data['main']['temp']
+        feels_like = data['main']['feels_like']
+        pressure = data['main']['pressure']
+        humidity = data['main']['humidity']
+        wind_speed = data['wind']['speed']
+        description = data['weather'][0]['description']
+
+        # Форматируем вывод
+        print("\n" + "="*50)
+        print(f"ПОГОДА В {city.upper()}, {country}")
+        print("="*50)
+        print(f"Температура: {temp:.1f} °C")
+        print(f"Ощущается как: {feels_like:.1f} °C")
+
+        if 'wind' in data and 'gust' in data['wind']:
+            wind_gust = data['wind']['gust']
+            print(f"Ветер: {wind_speed:.1f} м/с, порывы до {wind_gust:.1f} м/с")
+        else:
+            print(f"Ветер: {wind_speed:.1f} м/с")
+
+        print(f"Давление: {pressure} гПа")
+        print(f"Влажность: {humidity} %")
+        print(f"Состояние: {description.capitalize()}")
+
+        # Дополнительно можно добавить другие параметры
+        if 'visibility' in data:
+            visibility = data['visibility'] / 1000  # Переводим в км
+            print(f"Видимость: {visibility:.1f} км")
+
+        if 'clouds' in data:
+            clouds = data['clouds']['all']
+            print(f"Облачность: {clouds} %")
+
+    except KeyError as e:
+        print(f"Ошибка в структуре данных: отсутствует поле {e}")
+
+def main():
+    # Замените 'your_api_key_here' на ваш реальный API‑ключ
+    API_KEY = 'your_api_key_here'
+
+    if API_KEY == 'your_api_key_here':
+        print("Пожалуйста, установите ваш API‑ключ OpenWeather в переменной API_KEY")
+        return
+
+    # Ввод названия города
+    city = input("Введите название города: ").strip()
+
+    if not city:
+        print("Название города не может быть пустым.")
+        return
+
+    print(f"Получаем данные о погоде для {city}...")
+
+    # Получаем данные о погоде
+    weather_data = get_weather(city, API_KEY)
+
+    # Отображаем результат
+    display_weather(weather_data)
+
+if __name__ == '__main__':
+    main()
+
+Как использовать программу
+
+Зарегистрируйтесь на https://openweathermap.org  и получите API‑ключ.
+
+Замените 'your_api_key_here' в коде на ваш реальный ключ.
+
+Запустите программу.
+
+Введите название города при запросе.
+
+Получите подробный прогноз погоды.
+
+Пример работы 
+
+Введите название города: Москва
+Получаем данные о погоде для Москва...
+
+==================================================
+ПОГОДА В МОСКВА, RU
+==================================================
+Температура: 15.2 °C
+Ощущается как: 14.8 °C
+Ветер: 3.4 м/с
+Давление: 1013 гПа
+Влажность: 65 %
+Состояние: Переменная облачность
+Видимость: 10.0 км
+Облачность: 40 %
